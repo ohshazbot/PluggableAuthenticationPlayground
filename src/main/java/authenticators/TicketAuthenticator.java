@@ -2,26 +2,17 @@ package authenticators;
 
 import java.util.Arrays;
 
+import thrift.PlugException;
 import tokens.TicketToken;
-import tokens.Token;
+import tokens.AuthenticationToken;
 
 public class TicketAuthenticator implements Authenticator {
   
   @Override
-  public boolean authenticate(Token token) {
+  public boolean authenticate(AuthenticationToken token) {
     if (token instanceof TicketToken) {
       TicketToken tt = (TicketToken) token;
-      return Arrays.equals("userpass".getBytes(), tt.getTicket());
-    }
-    return false;
-  }
-  
-  @Override
-  public boolean validateUser(String user, Token token) {
-    if (token instanceof TicketToken) {
-      TicketToken tt = (TicketToken) token;
-      // The reality here is it reaches out to the appropriate server and validates
-      return new String(tt.getTicket()).startsWith(user);
+      return Arrays.equals("ticketuser_pass".getBytes(), tt.getTicket());
     }
     return false;
   }
@@ -33,5 +24,15 @@ public class TicketAuthenticator implements Authenticator {
   
   public static TicketToken getToken(byte[] ticket) {
     return new TicketToken(ticket);
+  }
+  
+  @Override
+  public String getUser(AuthenticationToken token) throws PlugException {
+    if (token instanceof TicketToken) {
+      TicketToken tt = (TicketToken) token;
+      // The reality here is it reaches out to the appropriate server and validates
+      return new String(tt.getTicket()).split("_")[0];
+    }
+    throw new PlugException("Bad token, expected TicketToken");
   }
 }

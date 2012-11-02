@@ -1,6 +1,6 @@
 package tokens;
 
-public class TicketToken implements Token {
+public class TicketToken implements AuthenticationToken {
 
   /**
    * 

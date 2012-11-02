@@ -38,7 +38,7 @@ public class PluggableSecurityTest {
 
     public boolean authenticate(ByteBuffer token) throws PlugException, org.apache.thrift.TException;
 
-    public boolean nonauthenticateoperation(String user, ByteBuffer token, String operationRelatedData) throws PlugException, org.apache.thrift.TException;
+    public boolean nonauthenticateoperation(ByteBuffer token, String operationRelatedData) throws PlugException, org.apache.thrift.TException;
 
     public String authenticationClass() throws org.apache.thrift.TException;
 
@@ -50,7 +50,7 @@ public class PluggableSecurityTest {
 
     public void authenticate(ByteBuffer token, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.authenticate_call> resultHandler) throws org.apache.thrift.TException;
 
-    public void nonauthenticateoperation(String user, ByteBuffer token, String operationRelatedData, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.nonauthenticateoperation_call> resultHandler) throws org.apache.thrift.TException;
+    public void nonauthenticateoperation(ByteBuffer token, String operationRelatedData, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.nonauthenticateoperation_call> resultHandler) throws org.apache.thrift.TException;
 
     public void authenticationClass(org.apache.thrift.async.AsyncMethodCallback<AsyncClient.authenticationClass_call> resultHandler) throws org.apache.thrift.TException;
 
@@ -124,16 +124,15 @@ public class PluggableSecurityTest {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "authenticate failed: unknown result");
     }
 
-    public boolean nonauthenticateoperation(String user, ByteBuffer token, String operationRelatedData) throws PlugException, org.apache.thrift.TException
+    public boolean nonauthenticateoperation(ByteBuffer token, String operationRelatedData) throws PlugException, org.apache.thrift.TException
     {
-      send_nonauthenticateoperation(user, token, operationRelatedData);
+      send_nonauthenticateoperation(token, operationRelatedData);
       return recv_nonauthenticateoperation();
     }
 
-    public void send_nonauthenticateoperation(String user, ByteBuffer token, String operationRelatedData) throws org.apache.thrift.TException
+    public void send_nonauthenticateoperation(ByteBuffer token, String operationRelatedData) throws org.apache.thrift.TException
     {
       nonauthenticateoperation_args args = new nonauthenticateoperation_args();
-      args.setUser(user);
       args.setToken(token);
       args.setOperationRelatedData(operationRelatedData);
       sendBase("nonauthenticateoperation", args);
@@ -253,20 +252,18 @@ public class PluggableSecurityTest {
       }
     }
 
-    public void nonauthenticateoperation(String user, ByteBuffer token, String operationRelatedData, org.apache.thrift.async.AsyncMethodCallback<nonauthenticateoperation_call> resultHandler) throws org.apache.thrift.TException {
+    public void nonauthenticateoperation(ByteBuffer token, String operationRelatedData, org.apache.thrift.async.AsyncMethodCallback<nonauthenticateoperation_call> resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      nonauthenticateoperation_call method_call = new nonauthenticateoperation_call(user, token, operationRelatedData, resultHandler, this, ___protocolFactory, ___transport);
+      nonauthenticateoperation_call method_call = new nonauthenticateoperation_call(token, operationRelatedData, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class nonauthenticateoperation_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String user;
       private ByteBuffer token;
       private String operationRelatedData;
-      public nonauthenticateoperation_call(String user, ByteBuffer token, String operationRelatedData, org.apache.thrift.async.AsyncMethodCallback<nonauthenticateoperation_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      public nonauthenticateoperation_call(ByteBuffer token, String operationRelatedData, org.apache.thrift.async.AsyncMethodCallback<nonauthenticateoperation_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
-        this.user = user;
         this.token = token;
         this.operationRelatedData = operationRelatedData;
       }
@@ -274,7 +271,6 @@ public class PluggableSecurityTest {
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("nonauthenticateoperation", org.apache.thrift.protocol.TMessageType.CALL, 0));
         nonauthenticateoperation_args args = new nonauthenticateoperation_args();
-        args.setUser(user);
         args.setToken(token);
         args.setOperationRelatedData(operationRelatedData);
         args.write(prot);
@@ -402,7 +398,7 @@ public class PluggableSecurityTest {
       public nonauthenticateoperation_result getResult(I iface, nonauthenticateoperation_args args) throws org.apache.thrift.TException {
         nonauthenticateoperation_result result = new nonauthenticateoperation_result();
         try {
-          result.success = iface.nonauthenticateoperation(args.user, args.token, args.operationRelatedData);
+          result.success = iface.nonauthenticateoperation(args.token, args.operationRelatedData);
           result.setSuccessIsSet(true);
         } catch (PlugException pe) {
           result.pe = pe;
@@ -1857,9 +1853,8 @@ public class PluggableSecurityTest {
   public static class nonauthenticateoperation_args implements org.apache.thrift.TBase<nonauthenticateoperation_args, nonauthenticateoperation_args._Fields>, java.io.Serializable, Cloneable   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("nonauthenticateoperation_args");
 
-    private static final org.apache.thrift.protocol.TField USER_FIELD_DESC = new org.apache.thrift.protocol.TField("user", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField TOKEN_FIELD_DESC = new org.apache.thrift.protocol.TField("token", org.apache.thrift.protocol.TType.STRING, (short)2);
-    private static final org.apache.thrift.protocol.TField OPERATION_RELATED_DATA_FIELD_DESC = new org.apache.thrift.protocol.TField("operationRelatedData", org.apache.thrift.protocol.TType.STRING, (short)3);
+    private static final org.apache.thrift.protocol.TField TOKEN_FIELD_DESC = new org.apache.thrift.protocol.TField("token", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField OPERATION_RELATED_DATA_FIELD_DESC = new org.apache.thrift.protocol.TField("operationRelatedData", org.apache.thrift.protocol.TType.STRING, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -1867,15 +1862,13 @@ public class PluggableSecurityTest {
       schemes.put(TupleScheme.class, new nonauthenticateoperation_argsTupleSchemeFactory());
     }
 
-    public String user; // required
     public ByteBuffer token; // required
     public String operationRelatedData; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      USER((short)1, "user"),
-      TOKEN((short)2, "token"),
-      OPERATION_RELATED_DATA((short)3, "operationRelatedData");
+      TOKEN((short)1, "token"),
+      OPERATION_RELATED_DATA((short)2, "operationRelatedData");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -1890,11 +1883,9 @@ public class PluggableSecurityTest {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
-          case 1: // USER
-            return USER;
-          case 2: // TOKEN
+          case 1: // TOKEN
             return TOKEN;
-          case 3: // OPERATION_RELATED_DATA
+          case 2: // OPERATION_RELATED_DATA
             return OPERATION_RELATED_DATA;
           default:
             return null;
@@ -1939,8 +1930,6 @@ public class PluggableSecurityTest {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.USER, new org.apache.thrift.meta_data.FieldMetaData("user", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.TOKEN, new org.apache.thrift.meta_data.FieldMetaData("token", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , true)));
       tmpMap.put(_Fields.OPERATION_RELATED_DATA, new org.apache.thrift.meta_data.FieldMetaData("operationRelatedData", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -1953,12 +1942,10 @@ public class PluggableSecurityTest {
     }
 
     public nonauthenticateoperation_args(
-      String user,
       ByteBuffer token,
       String operationRelatedData)
     {
       this();
-      this.user = user;
       this.token = token;
       this.operationRelatedData = operationRelatedData;
     }
@@ -1967,9 +1954,6 @@ public class PluggableSecurityTest {
      * Performs a deep copy on <i>other</i>.
      */
     public nonauthenticateoperation_args(nonauthenticateoperation_args other) {
-      if (other.isSetUser()) {
-        this.user = other.user;
-      }
       if (other.isSetToken()) {
         this.token = org.apache.thrift.TBaseHelper.copyBinary(other.token);
 ;
@@ -1985,33 +1969,8 @@ public class PluggableSecurityTest {
 
     @Override
     public void clear() {
-      this.user = null;
       this.token = null;
       this.operationRelatedData = null;
-    }
-
-    public String getUser() {
-      return this.user;
-    }
-
-    public nonauthenticateoperation_args setUser(String user) {
-      this.user = user;
-      return this;
-    }
-
-    public void unsetUser() {
-      this.user = null;
-    }
-
-    /** Returns true if field user is set (has been assigned a value) and false otherwise */
-    public boolean isSetUser() {
-      return this.user != null;
-    }
-
-    public void setUserIsSet(boolean value) {
-      if (!value) {
-        this.user = null;
-      }
     }
 
     public byte[] getToken() {
@@ -2074,14 +2033,6 @@ public class PluggableSecurityTest {
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case USER:
-        if (value == null) {
-          unsetUser();
-        } else {
-          setUser((String)value);
-        }
-        break;
-
       case TOKEN:
         if (value == null) {
           unsetToken();
@@ -2103,9 +2054,6 @@ public class PluggableSecurityTest {
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case USER:
-        return getUser();
-
       case TOKEN:
         return getToken();
 
@@ -2123,8 +2071,6 @@ public class PluggableSecurityTest {
       }
 
       switch (field) {
-      case USER:
-        return isSetUser();
       case TOKEN:
         return isSetToken();
       case OPERATION_RELATED_DATA:
@@ -2145,15 +2091,6 @@ public class PluggableSecurityTest {
     public boolean equals(nonauthenticateoperation_args that) {
       if (that == null)
         return false;
-
-      boolean this_present_user = true && this.isSetUser();
-      boolean that_present_user = true && that.isSetUser();
-      if (this_present_user || that_present_user) {
-        if (!(this_present_user && that_present_user))
-          return false;
-        if (!this.user.equals(that.user))
-          return false;
-      }
 
       boolean this_present_token = true && this.isSetToken();
       boolean that_present_token = true && that.isSetToken();
@@ -2189,16 +2126,6 @@ public class PluggableSecurityTest {
       int lastComparison = 0;
       nonauthenticateoperation_args typedOther = (nonauthenticateoperation_args)other;
 
-      lastComparison = Boolean.valueOf(isSetUser()).compareTo(typedOther.isSetUser());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetUser()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.user, typedOther.user);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
       lastComparison = Boolean.valueOf(isSetToken()).compareTo(typedOther.isSetToken());
       if (lastComparison != 0) {
         return lastComparison;
@@ -2239,14 +2166,6 @@ public class PluggableSecurityTest {
       StringBuilder sb = new StringBuilder("nonauthenticateoperation_args(");
       boolean first = true;
 
-      sb.append("user:");
-      if (this.user == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.user);
-      }
-      first = false;
-      if (!first) sb.append(", ");
       sb.append("token:");
       if (this.token == null) {
         sb.append("null");
@@ -2305,15 +2224,7 @@ public class PluggableSecurityTest {
             break;
           }
           switch (schemeField.id) {
-            case 1: // USER
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.user = iprot.readString();
-                struct.setUserIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
-            case 2: // TOKEN
+            case 1: // TOKEN
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.token = iprot.readBinary();
                 struct.setTokenIsSet(true);
@@ -2321,7 +2232,7 @@ public class PluggableSecurityTest {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 3: // OPERATION_RELATED_DATA
+            case 2: // OPERATION_RELATED_DATA
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.operationRelatedData = iprot.readString();
                 struct.setOperationRelatedDataIsSet(true);
@@ -2344,11 +2255,6 @@ public class PluggableSecurityTest {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
-        if (struct.user != null) {
-          oprot.writeFieldBegin(USER_FIELD_DESC);
-          oprot.writeString(struct.user);
-          oprot.writeFieldEnd();
-        }
         if (struct.token != null) {
           oprot.writeFieldBegin(TOKEN_FIELD_DESC);
           oprot.writeBinary(struct.token);
@@ -2377,19 +2283,13 @@ public class PluggableSecurityTest {
       public void write(org.apache.thrift.protocol.TProtocol prot, nonauthenticateoperation_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
-        if (struct.isSetUser()) {
+        if (struct.isSetToken()) {
           optionals.set(0);
         }
-        if (struct.isSetToken()) {
+        if (struct.isSetOperationRelatedData()) {
           optionals.set(1);
         }
-        if (struct.isSetOperationRelatedData()) {
-          optionals.set(2);
-        }
-        oprot.writeBitSet(optionals, 3);
-        if (struct.isSetUser()) {
-          oprot.writeString(struct.user);
-        }
+        oprot.writeBitSet(optionals, 2);
         if (struct.isSetToken()) {
           oprot.writeBinary(struct.token);
         }
@@ -2401,16 +2301,12 @@ public class PluggableSecurityTest {
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, nonauthenticateoperation_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(3);
+        BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
-          struct.user = iprot.readString();
-          struct.setUserIsSet(true);
-        }
-        if (incoming.get(1)) {
           struct.token = iprot.readBinary();
           struct.setTokenIsSet(true);
         }
-        if (incoming.get(2)) {
+        if (incoming.get(1)) {
           struct.operationRelatedData = iprot.readString();
           struct.setOperationRelatedDataIsSet(true);
         }

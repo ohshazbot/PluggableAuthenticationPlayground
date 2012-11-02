@@ -9,6 +9,6 @@ service PluggableSecurityTest
 {
   bool ping();
   bool authenticate(1:binary token) throws (1:PlugException plugException)
-  bool nonauthenticateoperation(1:string user, 2:binary token, 3:string operationRelatedData) throws (1:PlugException pe)
+  bool nonauthenticateoperation(1:binary token, 2:string operationRelatedData) throws (1:PlugException pe)
   string authenticationClass()
 }

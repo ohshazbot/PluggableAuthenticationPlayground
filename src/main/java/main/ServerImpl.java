@@ -15,7 +15,7 @@ import org.apache.thrift.transport.TNonblockingServerSocket;
 
 import thrift.PlugException;
 import thrift.PluggableSecurityTest;
-import tokens.Token;
+import tokens.AuthenticationToken;
 import authenticators.Authenticator;
 import authenticators.TicketAuthenticator;
 import authenticators.UserPassAuthenticator;
@@ -38,12 +38,12 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
     return auth.authenticate(getToken(tokenBytes));
   }
   
-  private Token getToken(ByteBuffer tokenBytes) throws TException {
+  private AuthenticationToken getToken(ByteBuffer tokenBytes) throws TException {
     ByteArrayInputStream byteIn = new ByteArrayInputStream(tokenBytes.array());
     ObjectInputStream in;
     try {
       in = new ObjectInputStream(byteIn);
-      Token token = (Token) in.readObject();
+      AuthenticationToken token = (AuthenticationToken) in.readObject();
       in.close();
       byteIn.close();
       return token;
@@ -91,9 +91,10 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
   }
   
   @Override
-  public boolean nonauthenticateoperation(String user, ByteBuffer token, String operationRelatedData) throws PlugException, TException {
-    if (auth.validateUser(user, getToken(token))) {
-      System.out.println(operationRelatedData);
+  public boolean nonauthenticateoperation(ByteBuffer token, String operationRelatedData) throws PlugException, TException {
+    AuthenticationToken t = getToken(token);
+    if (auth.authenticate(t)) {
+      System.out.println("User " + auth.getUser(t) + " is doing " + operationRelatedData);
       return true;
     }
     return false;

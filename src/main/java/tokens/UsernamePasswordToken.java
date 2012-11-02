@@ -2,7 +2,7 @@ package tokens;
 
 
 
-public class UsernamePasswordToken implements Token {
+public class UsernamePasswordToken implements AuthenticationToken {
   
   /**
    * 
