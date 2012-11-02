@@ -5,7 +5,7 @@ import java.util.Arrays;
 import tokens.TicketToken;
 import tokens.Token;
 
-public class TokenAuthenticator implements Authenticator {
+public class TicketAuthenticator implements Authenticator {
   
   @Override
   public boolean authenticate(Token token) {
@@ -31,7 +31,7 @@ public class TokenAuthenticator implements Authenticator {
     return TicketToken.class.toString();
   }
   
-  public TicketToken getToken(byte[] ticket) {
+  public static TicketToken getToken(byte[] ticket) {
     return new TicketToken(ticket);
   }
 }

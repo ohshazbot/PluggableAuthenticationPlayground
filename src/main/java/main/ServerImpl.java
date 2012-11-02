@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
+import java.util.Random;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -16,13 +17,13 @@ import thrift.PlugException;
 import thrift.PluggableSecurityTest;
 import tokens.Token;
 import authenticators.Authenticator;
+import authenticators.TicketAuthenticator;
 import authenticators.UserPassAuthenticator;
 
 ;
 
 public class ServerImpl implements PluggableSecurityTest.Iface {
-  Authenticator auth = new UserPassAuthenticator();
-  // Authenticator auth = new TicketAuthenticator();
+  Authenticator auth;
   boolean last = false;
   TServer server;
   
@@ -78,7 +79,11 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
   }
   
   public ServerImpl() {
-    
+    Random r = new Random();
+    if (r.nextBoolean())
+      auth = new UserPassAuthenticator();
+    else
+      auth = new TicketAuthenticator();
   }
   
   public void close() {
@@ -92,5 +97,10 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
       return true;
     }
     return false;
+  }
+  
+  @Override
+  public String authenticationClass() throws TException {
+    return auth.getClass().getCanonicalName();
   }
 }

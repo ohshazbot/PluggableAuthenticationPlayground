@@ -28,7 +28,7 @@ public class UserPassAuthenticator implements Authenticator {
     return UsernamePasswordToken.class.getName();
   }
   
-  public UsernamePasswordToken getToken(String user, byte[] pass) {
+  public static UsernamePasswordToken getToken(String user, byte[] pass) {
     return new UsernamePasswordToken(user, pass);
   }
   

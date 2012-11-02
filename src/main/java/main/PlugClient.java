@@ -14,11 +14,11 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
-
 import thrift.PlugException;
 import thrift.PluggableSecurityTest;
 import tokens.Token;
-import tokens.UsernamePasswordToken;
+import authenticators.TicketAuthenticator;
+import authenticators.UserPassAuthenticator;
 
 /**
  * Created with IntelliJ IDEA. User: chris Date: 8/20/12 Time: 12:28 PM To change this template use File | Settings | File Templates.
@@ -51,7 +51,7 @@ public class PlugClient {
   
   public boolean authenticate(Token token) throws PlugException, IOException {
     try {
-      ByteArrayOutputStream out = new ByteArrayOutputStream ();
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
       ObjectOutputStream objOut = new ObjectOutputStream(out);
       objOut.writeObject(token);
       out.close();
@@ -63,9 +63,13 @@ public class PlugClient {
     }
   }
   
+  public String authenticationClass() throws TException {
+    return proxy.authenticationClass();
+  }
+  
   public boolean nonauthenticateoperation(String user, Token token, String s) throws PlugException, IOException {
     try {
-      ByteArrayOutputStream out = new ByteArrayOutputStream ();
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
       ObjectOutputStream objOut = new ObjectOutputStream(out);
       objOut.writeObject(token);
       out.close();
@@ -78,7 +82,7 @@ public class PlugClient {
     
   }
   
-  public static void main(String args[]) throws TTransportException, PlugException, IOException {
+  public static void main(String args[]) throws Exception {
     AtomicBoolean stop = new AtomicBoolean(false);
     PlugServer server = new PlugServer(stop);
     Thread t = new Thread(server);
@@ -92,8 +96,16 @@ public class PlugClient {
     System.out.println("PING? " + client.ping());
     System.out.println("PING? " + client.ping());
     
-    Token token = new UsernamePasswordToken("user", "pass".getBytes());
-//    Token token = new TicketToken("userpass".getBytes());
+    String auth = client.authenticationClass();
+    System.out.println(auth);
+    Token token;
+    if (auth.equals("authenticators.UserPassAuthenticator"))
+      token = UserPassAuthenticator.getToken("user", "pass".getBytes());
+    else if (auth.equals("authenticators.TicketAuthenticator"))
+      token = TicketAuthenticator.getToken("userpass".getBytes());
+    else {
+      throw new Exception("Unknown authentication mechanism");
+    }
     System.out.println("AUTHENTICATE! " + client.authenticate(token));
     
     System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation("user", token, "I'm a message being printed server side"));
