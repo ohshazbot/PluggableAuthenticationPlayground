@@ -17,6 +17,7 @@ import thrift.PlugException;
 import thrift.PluggableSecurityTest;
 import tokens.AuthenticationToken;
 import authenticators.Authenticator;
+import authenticators.KerberosAuthenticator;
 import authenticators.TicketAuthenticator;
 import authenticators.UserPassAuthenticator;
 
@@ -79,11 +80,12 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
   }
   
   public ServerImpl() {
-    Random r = new Random();
-    if (r.nextBoolean())
-      auth = new UserPassAuthenticator();
-    else
-      auth = new TicketAuthenticator();
+//    Random r = new Random();
+//    if (r.nextBoolean())
+//      auth = new UserPassAuthenticator();
+//    else
+//      auth = new TicketAuthenticator();'
+    auth = new KerberosAuthenticator();
   }
   
   public void close() {

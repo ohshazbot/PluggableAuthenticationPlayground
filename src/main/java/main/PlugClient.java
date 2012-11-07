@@ -17,6 +17,7 @@ import org.apache.thrift.transport.TTransportException;
 import thrift.PlugException;
 import thrift.PluggableSecurityTest;
 import tokens.AuthenticationToken;
+import authenticators.KerberosAuthenticator;
 import authenticators.TicketAuthenticator;
 import authenticators.UserPassAuthenticator;
 
@@ -87,30 +88,34 @@ public class PlugClient {
     PlugServer server = new PlugServer(stop);
     Thread t = new Thread(server);
     t.start();
-    
-    PlugClient client = new PlugClient();
-    
-    System.out.println("PING? " + client.ping());
-    System.out.println("PING? " + client.ping());
-    System.out.println("PING? " + client.ping());
-    System.out.println("PING? " + client.ping());
-    System.out.println("PING? " + client.ping());
-    
-    String auth = client.authenticationClass();
-    System.out.println(auth);
-    AuthenticationToken token;
-    if (auth.equals("authenticators.UserPassAuthenticator"))
-      token = UserPassAuthenticator.getToken("upuser", "pass".getBytes());
-    else if (auth.equals("authenticators.TicketAuthenticator"))
-      token = TicketAuthenticator.getToken("ticketuser_pass".getBytes());
-    else {
-      throw new Exception("Unknown authentication mechanism");
+    try {
+      PlugClient client = new PlugClient();
+      
+      System.out.println("PING? " + client.ping());
+      System.out.println("PING? " + client.ping());
+      System.out.println("PING? " + client.ping());
+      System.out.println("PING? " + client.ping());
+      System.out.println("PING? " + client.ping());
+      
+      String auth = client.authenticationClass();
+      System.out.println(auth);
+      AuthenticationToken token;
+      if (auth.equals("authenticators.UserPassAuthenticator"))
+        token = UserPassAuthenticator.getToken("upuser", "pass".getBytes());
+      else if (auth.equals("authenticators.TicketAuthenticator"))
+        token = TicketAuthenticator.getToken("ticketuser_pass".getBytes());
+      else if (auth.equals("authenticators.KerberosAuthenticator"))
+        token = KerberosAuthenticator.getToken("user", "password".toCharArray());
+      else {
+        throw new Exception("Unknown authentication mechanism");
+      }
+      System.out.println("AUTHENTICATE! " + client.authenticate(token));
+      
+      System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
+      
+      stop.set(true);
+    } finally {
+      t.interrupt();
     }
-    System.out.println("AUTHENTICATE! " + client.authenticate(token));
-    
-    System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
-    
-    stop.set(true);
-    t.interrupt();
   }
 }
