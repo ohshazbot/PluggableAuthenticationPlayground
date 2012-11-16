@@ -6,12 +6,15 @@ import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
+import javax.security.auth.login.LoginException;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.THsHaServer;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
+import org.ietf.jgss.GSSException;
 
 import thrift.PlugException;
 import thrift.PluggableSecurityTest;
@@ -24,7 +27,7 @@ import authenticators.UserPassAuthenticator;
 ;
 
 public class ServerImpl implements PluggableSecurityTest.Iface {
-  Authenticator auth;
+  KerberosAuthenticator auth;
   boolean last = false;
   TServer server;
   
@@ -35,8 +38,8 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
   }
   
   @Override
-  public boolean authenticate(ByteBuffer tokenBytes) throws PlugException, TException {
-    return auth.authenticate(getToken(tokenBytes));
+  public ByteBuffer authenticate(ByteBuffer tokenBytes) throws PlugException, TException {
+    return ByteBuffer.wrap(auth.authenticate(getToken(tokenBytes)));
   }
   
   private AuthenticationToken getToken(ByteBuffer tokenBytes) throws TException {
@@ -79,7 +82,7 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
     
   }
   
-  public ServerImpl() {
+  public ServerImpl() throws GSSException, LoginException {
 //    Random r = new Random();
 //    if (r.nextBoolean())
 //      auth = new UserPassAuthenticator();
@@ -95,11 +98,18 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
   @Override
   public boolean nonauthenticateoperation(ByteBuffer token, String operationRelatedData) throws PlugException, TException {
     AuthenticationToken t = getToken(token);
-    if (auth.authenticate(t)) {
-      System.out.println("User " + auth.getUser(t) + " is doing " + operationRelatedData);
+//    byte[] auths = auth.authenticate(t);
+//    if (auths!=null) {
+      try {
+        System.out.println("User " + auth.getUser(t) + " is doing " + operationRelatedData);
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        return false;
+      }
       return true;
-    }
-    return false;
+    // }
+    // return false;
   }
   
   @Override

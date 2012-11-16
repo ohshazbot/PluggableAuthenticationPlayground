@@ -33,4 +33,16 @@ public class UsernamePasswordToken implements AuthenticationToken {
   public String toString() {
     return user + " -> " + new String(pass);
   }
+
+  @Override
+  public void destroy() {
+    for (int i = 0; i < pass.length; i++)
+      pass[i] = 0x00;
+    pass = null;
+  }
+
+  @Override
+  public boolean isDestroyed() {
+    return pass ==null;
+  }
  }

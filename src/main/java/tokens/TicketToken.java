@@ -20,4 +20,14 @@ public class TicketToken implements AuthenticationToken {
   public void setTicket(byte[] ticket){
     this.ticket = ticket;
   }
+  
+  public void destroy() {
+    for (int i = 0; i < ticket.length; i++)
+      ticket[i] = 0x00;
+    ticket = null;
+  }
+  @Override
+  public boolean isDestroyed() {
+    return ticket==null;
+  }
 }

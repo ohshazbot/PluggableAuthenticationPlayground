@@ -2,6 +2,7 @@ package tokens;
 
 import java.io.Serializable;
 
-public interface AuthenticationToken extends Serializable{
-  
+import javax.security.auth.Destroyable;
+
+public interface AuthenticationToken extends Serializable, Destroyable{
 }

@@ -7,34 +7,38 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class PlugServer implements Runnable {
   AtomicBoolean stop;
+  int port;
   
-  public PlugServer(AtomicBoolean stop) {
+  public PlugServer(AtomicBoolean stop, int port) {
     this.stop = stop;
+    this.port = port;
   }
   
   public void run() {
     
     System.out.println("Starting server");
-    
-    ServerImpl server = new ServerImpl();
-    
+    ServerImpl server = null;
     try {
-      server.startServer(50228);
+      server = new ServerImpl();
+      server.startServer(port);
+      while (!stop.get())
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+          break;
+        }
+      server.close();
+      
+      return;
     } catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException(e);
-    }
-    while (!stop.get())
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        break;
-      }
+    } finally {}
     
-    server.close();
-    return;
   }
   
-  public static void run(String[] args) {
-    new PlugServer(new AtomicBoolean(false)).run();
+  public static void main(String[] args) {
+    new PlugServer(new AtomicBoolean(false), Integer.parseInt(args[0])).run();
   }
 }

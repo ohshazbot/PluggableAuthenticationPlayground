@@ -36,7 +36,7 @@ public class PluggableSecurityTest {
 
     public boolean ping() throws org.apache.thrift.TException;
 
-    public boolean authenticate(ByteBuffer token) throws PlugException, org.apache.thrift.TException;
+    public ByteBuffer authenticate(ByteBuffer token) throws PlugException, org.apache.thrift.TException;
 
     public boolean nonauthenticateoperation(ByteBuffer token, String operationRelatedData) throws PlugException, org.apache.thrift.TException;
 
@@ -98,7 +98,7 @@ public class PluggableSecurityTest {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "ping failed: unknown result");
     }
 
-    public boolean authenticate(ByteBuffer token) throws PlugException, org.apache.thrift.TException
+    public ByteBuffer authenticate(ByteBuffer token) throws PlugException, org.apache.thrift.TException
     {
       send_authenticate(token);
       return recv_authenticate();
@@ -111,7 +111,7 @@ public class PluggableSecurityTest {
       sendBase("authenticate", args);
     }
 
-    public boolean recv_authenticate() throws PlugException, org.apache.thrift.TException
+    public ByteBuffer recv_authenticate() throws PlugException, org.apache.thrift.TException
     {
       authenticate_result result = new authenticate_result();
       receiveBase(result, "authenticate");
@@ -242,7 +242,7 @@ public class PluggableSecurityTest {
         prot.writeMessageEnd();
       }
 
-      public boolean getResult() throws PlugException, org.apache.thrift.TException {
+      public ByteBuffer getResult() throws PlugException, org.apache.thrift.TException {
         if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
@@ -374,7 +374,6 @@ public class PluggableSecurityTest {
         authenticate_result result = new authenticate_result();
         try {
           result.success = iface.authenticate(args.token);
-          result.setSuccessIsSet(true);
         } catch (PlugException plugException) {
           result.plugException = plugException;
         }
@@ -1397,7 +1396,7 @@ public class PluggableSecurityTest {
   public static class authenticate_result implements org.apache.thrift.TBase<authenticate_result, authenticate_result._Fields>, java.io.Serializable, Cloneable   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("authenticate_result");
 
-    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.BOOL, (short)0);
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRING, (short)0);
     private static final org.apache.thrift.protocol.TField PLUG_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("plugException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -1406,7 +1405,7 @@ public class PluggableSecurityTest {
       schemes.put(TupleScheme.class, new authenticate_resultTupleSchemeFactory());
     }
 
-    public boolean success; // required
+    public ByteBuffer success; // required
     public PlugException plugException; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -1471,13 +1470,11 @@ public class PluggableSecurityTest {
     }
 
     // isset id assignments
-    private static final int __SUCCESS_ISSET_ID = 0;
-    private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , true)));
       tmpMap.put(_Fields.PLUG_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("plugException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -1488,12 +1485,11 @@ public class PluggableSecurityTest {
     }
 
     public authenticate_result(
-      boolean success,
+      ByteBuffer success,
       PlugException plugException)
     {
       this();
       this.success = success;
-      setSuccessIsSet(true);
       this.plugException = plugException;
     }
 
@@ -1501,8 +1497,10 @@ public class PluggableSecurityTest {
      * Performs a deep copy on <i>other</i>.
      */
     public authenticate_result(authenticate_result other) {
-      __isset_bitfield = other.__isset_bitfield;
-      this.success = other.success;
+      if (other.isSetSuccess()) {
+        this.success = org.apache.thrift.TBaseHelper.copyBinary(other.success);
+;
+      }
       if (other.isSetPlugException()) {
         this.plugException = new PlugException(other.plugException);
       }
@@ -1514,32 +1512,42 @@ public class PluggableSecurityTest {
 
     @Override
     public void clear() {
-      setSuccessIsSet(false);
-      this.success = false;
+      this.success = null;
       this.plugException = null;
     }
 
-    public boolean isSuccess() {
-      return this.success;
+    public byte[] getSuccess() {
+      setSuccess(org.apache.thrift.TBaseHelper.rightSize(success));
+      return success == null ? null : success.array();
     }
 
-    public authenticate_result setSuccess(boolean success) {
+    public ByteBuffer bufferForSuccess() {
+      return success;
+    }
+
+    public authenticate_result setSuccess(byte[] success) {
+      setSuccess(success == null ? (ByteBuffer)null : ByteBuffer.wrap(success));
+      return this;
+    }
+
+    public authenticate_result setSuccess(ByteBuffer success) {
       this.success = success;
-      setSuccessIsSet(true);
       return this;
     }
 
     public void unsetSuccess() {
-      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SUCCESS_ISSET_ID);
+      this.success = null;
     }
 
     /** Returns true if field success is set (has been assigned a value) and false otherwise */
     public boolean isSetSuccess() {
-      return EncodingUtils.testBit(__isset_bitfield, __SUCCESS_ISSET_ID);
+      return this.success != null;
     }
 
     public void setSuccessIsSet(boolean value) {
-      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
+      if (!value) {
+        this.success = null;
+      }
     }
 
     public PlugException getPlugException() {
@@ -1572,7 +1580,7 @@ public class PluggableSecurityTest {
         if (value == null) {
           unsetSuccess();
         } else {
-          setSuccess((Boolean)value);
+          setSuccess((ByteBuffer)value);
         }
         break;
 
@@ -1590,7 +1598,7 @@ public class PluggableSecurityTest {
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
-        return Boolean.valueOf(isSuccess());
+        return getSuccess();
 
       case PLUG_EXCEPTION:
         return getPlugException();
@@ -1627,12 +1635,12 @@ public class PluggableSecurityTest {
       if (that == null)
         return false;
 
-      boolean this_present_success = true;
-      boolean that_present_success = true;
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
       if (this_present_success || that_present_success) {
         if (!(this_present_success && that_present_success))
           return false;
-        if (this.success != that.success)
+        if (!this.success.equals(that.success))
           return false;
       }
 
@@ -1702,7 +1710,11 @@ public class PluggableSecurityTest {
       boolean first = true;
 
       sb.append("success:");
-      sb.append(this.success);
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        org.apache.thrift.TBaseHelper.toString(this.success, sb);
+      }
       first = false;
       if (!first) sb.append(", ");
       sb.append("plugException:");
@@ -1731,8 +1743,6 @@ public class PluggableSecurityTest {
 
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
       try {
-        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
-        __isset_bitfield = 0;
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
       } catch (org.apache.thrift.TException te) {
         throw new java.io.IOException(te);
@@ -1758,8 +1768,8 @@ public class PluggableSecurityTest {
           }
           switch (schemeField.id) {
             case 0: // SUCCESS
-              if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
-                struct.success = iprot.readBool();
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.success = iprot.readBinary();
                 struct.setSuccessIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -1789,9 +1799,9 @@ public class PluggableSecurityTest {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
-        if (struct.isSetSuccess()) {
+        if (struct.success != null) {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
-          oprot.writeBool(struct.success);
+          oprot.writeBinary(struct.success);
           oprot.writeFieldEnd();
         }
         if (struct.plugException != null) {
@@ -1825,7 +1835,7 @@ public class PluggableSecurityTest {
         }
         oprot.writeBitSet(optionals, 2);
         if (struct.isSetSuccess()) {
-          oprot.writeBool(struct.success);
+          oprot.writeBinary(struct.success);
         }
         if (struct.isSetPlugException()) {
           struct.plugException.write(oprot);
@@ -1837,7 +1847,7 @@ public class PluggableSecurityTest {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
-          struct.success = iprot.readBool();
+          struct.success = iprot.readBinary();
           struct.setSuccessIsSet(true);
         }
         if (incoming.get(1)) {
