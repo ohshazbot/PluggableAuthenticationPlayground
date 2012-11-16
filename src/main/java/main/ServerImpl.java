@@ -83,31 +83,36 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
   }
   
   public ServerImpl() throws GSSException, LoginException {
-//    Random r = new Random();
-//    if (r.nextBoolean())
-//      auth = new UserPassAuthenticator();
-//    else
-//      auth = new TicketAuthenticator();'
+    // Random r = new Random();
+    // if (r.nextBoolean())
+    // auth = new UserPassAuthenticator();
+    // else
+    // auth = new TicketAuthenticator();'
     auth = new KerberosAuthenticator();
   }
   
+  public void close(ByteBuffer token) throws TException {
+    if (token != null)
+      auth.close(getToken(token));
+  }
+  
   public void close() {
-    server.stop();
+    server.stop(); 
   }
   
   @Override
   public boolean nonauthenticateoperation(ByteBuffer token, String operationRelatedData) throws PlugException, TException {
     AuthenticationToken t = getToken(token);
-//    byte[] auths = auth.authenticate(t);
-//    if (auths!=null) {
-      try {
-        System.out.println("User " + auth.getUser(t) + " is doing " + operationRelatedData);
-      } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        return false;
-      }
-      return true;
+    // byte[] auths = auth.authenticate(t);
+    // if (auths!=null) {
+    try {
+      System.out.println("User " + auth.getUser(t) + " is doing " + operationRelatedData);
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return false;
+    }
+    return true;
     // }
     // return false;
   }

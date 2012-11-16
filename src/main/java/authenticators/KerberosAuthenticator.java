@@ -1,10 +1,10 @@
 package authenticators;
 
 import java.security.PrivilegedAction;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.security.auth.Subject;
-import javax.security.auth.kerberos.KerberosKey;
-import javax.security.auth.kerberos.KerberosTicket;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -22,7 +22,7 @@ import tokens.KerberosToken;
 
 public class KerberosAuthenticator {// implements Authenticator {
   Subject subject;
-  GSSContext context;
+  Map<String,GSSContext> contexts;
   
   public KerberosAuthenticator() throws GSSException, LoginException {
     System.setProperty("sun.security.krb5.debug", "false");
@@ -37,26 +37,35 @@ public class KerberosAuthenticator {// implements Authenticator {
     loginCtx.login();
     subject = loginCtx.getSubject();
     
-    GSSManager manager = GSSManager.getInstance();
-    context = manager.createContext((GSSCredential) null);
+    contexts = new HashMap<String, GSSContext>();
   }
   
   // @Override
   public byte[] authenticate(final AuthenticationToken token) {
-    if (context.isEstablished())
+    final KerberosToken kt = (KerberosToken) token;
+    GSSContext context = contexts.get(kt.getUUID());
+    System.out.println("Authenticating");
+    if (context != null && context.isEstablished())
+    {
+      System.out.println("Using cached context");
       return new byte[0];
-    return Subject.doAs(subject, new PrivilegedAction<byte[]>() {
+    }
+      return Subject.doAs(subject, new PrivilegedAction<byte[]>() {
       public byte[] run() {
         try {
-          KerberosToken kt = (KerberosToken) token;
-          // This is a one pass context initialisation.
-          context.requestMutualAuth(false);
-          context.requestCredDeleg(false);
+          // This is a one pass context initialization.
+          GSSContext context = contexts.get(kt.getUUID());
+          if (context == null) {
+            context = GSSManager.getInstance().createContext((GSSCredential) null);
+            context.requestMutualAuth(false);
+            context.requestCredDeleg(false);
+            contexts.put(kt.getUUID(), context);
+          }
           return context.acceptSecContext(kt.session, 0, kt.session.length);
           
         } catch (GSSException e) {
           e.printStackTrace();
-          return null;
+          throw new RuntimeException(e);
         }
       }
     });
@@ -70,12 +79,21 @@ public class KerberosAuthenticator {// implements Authenticator {
   
   // @Override
   public String getUser(AuthenticationToken token) throws PlugException, GSSException {
-    KerberosToken kt = (KerberosToken) token;
+    final KerberosToken kt = (KerberosToken) token;
     
     authenticate(token);
-    
-    byte[] ticket = context.unwrap(kt.encUser, 0, kt.encUser.length, new MessageProp(false));
-    return new String(ticket);
+    return new String(Subject.doAs(subject, new PrivilegedAction<byte[]>() {
+      public byte[] run() {
+        try {
+          // This is a one pass context initialization.
+          GSSContext context = contexts.get(kt.getUUID());
+          return context.unwrap(kt.encUser, 0, kt.encUser.length, new MessageProp(false));
+        } catch (GSSException e) {
+          e.printStackTrace();
+          return null;
+        }
+      }
+    }));
   }
   
   public static KerberosToken getToken(String user, char[] pass) throws LoginException, GSSException {
@@ -112,6 +130,12 @@ public class KerberosAuthenticator {// implements Authenticator {
       }
     });
     
-    return new KerberosToken(serviceTicket, context);
+    return new KerberosToken(serviceTicket, context, user);
+  }
+  
+  public void close(AuthenticationToken token) {
+    KerberosToken kt = (KerberosToken) token;
+    System.out.println("Closing user " + kt.getUUID());
+    contexts.remove(kt.getUUID());
   }
 }

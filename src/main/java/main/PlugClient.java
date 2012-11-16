@@ -35,8 +35,18 @@ public class PlugClient {
     transport.open();
   }
   
-  public void close() throws TException {
-    transport.close();
+  public void close(AuthenticationToken token) throws TException, IOException {
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      ObjectOutputStream objOut = new ObjectOutputStream(out);
+      objOut.writeObject(token);
+      out.close();
+      objOut.close();
+      proxy.close(ByteBuffer.wrap(out.toByteArray()));
+      transport.close();
+    } catch (TException e) {
+      e.printStackTrace();
+    }
   }
   
   public boolean ping() {
@@ -121,8 +131,9 @@ public class PlugClient {
       token.update();
       
       System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
-      
-      client.close();
+
+      Thread.sleep(5000);
+      client.close(token);
 //      client = new PlugClient("localhost", 50229);
 //      System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
 

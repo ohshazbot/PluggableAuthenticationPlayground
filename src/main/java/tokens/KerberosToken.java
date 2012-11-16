@@ -3,6 +3,7 @@ package tokens;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.management.ManagementFactory;
 
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
@@ -12,10 +13,14 @@ public class KerberosToken implements AuthenticationToken {
   public byte[] session;
   transient GSSContext context;
   public byte[] encUser = null;
+  private String user;
+  private String procName;
   
-  public KerberosToken(byte[] outToken, GSSContext context) {
+  public KerberosToken(byte[] outToken, GSSContext context, String user) {
     session = outToken;
     this.context = context;
+    this.user = user;
+    procName = ManagementFactory.getRuntimeMXBean().getName();
   }
   
   /**
@@ -58,5 +63,9 @@ public class KerberosToken implements AuthenticationToken {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+  }
+
+  public String getUUID() {
+    return user + "_" + procName;
   }
 }
