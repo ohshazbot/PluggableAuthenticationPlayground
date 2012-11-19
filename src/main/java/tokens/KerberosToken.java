@@ -12,15 +12,12 @@ import org.ietf.jgss.MessageProp;
 public class KerberosToken implements AuthenticationToken {
   public byte[] session;
   transient GSSContext context;
-  public byte[] encUser = null;
-  private String user;
-  private String procName;
+  public String user;
   
   public KerberosToken(byte[] outToken, GSSContext context, String user) {
     session = outToken;
     this.context = context;
     this.user = user;
-    procName = ManagementFactory.getRuntimeMXBean().getName();
   }
   
   /**
@@ -53,19 +50,9 @@ public class KerberosToken implements AuthenticationToken {
   public boolean isDestroyed() {
     return context == null;
   }
-  
-  public void update() {
-    String principal;
-    try {
-      principal = context.getSrcName().toString();
-      encUser = context.wrap(principal.getBytes(), 0, principal.getBytes().length, new MessageProp(false));
-    } catch (GSSException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
 
-  public String getUUID() {
-    return user + "_" + procName;
+  public String getUser() {
+    return user;
   }
+  
 }

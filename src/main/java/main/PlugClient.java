@@ -35,20 +35,7 @@ public class PlugClient {
     transport.open();
   }
   
-  public void close(AuthenticationToken token) throws TException, IOException {
-    try {
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      ObjectOutputStream objOut = new ObjectOutputStream(out);
-      objOut.writeObject(token);
-      out.close();
-      objOut.close();
-      proxy.close(ByteBuffer.wrap(out.toByteArray()));
-      transport.close();
-    } catch (TException e) {
-      e.printStackTrace();
-    }
-  }
-  
+
   public boolean ping() {
     try {
       return proxy.ping();
@@ -58,7 +45,7 @@ public class PlugClient {
     }
   }
   
-  public ByteBuffer authenticate(AuthenticationToken token) throws PlugException, IOException {
+  public boolean authenticate(AuthenticationToken token) throws PlugException, IOException {
     try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       ObjectOutputStream objOut = new ObjectOutputStream(out);
@@ -68,7 +55,7 @@ public class PlugClient {
       return proxy.authenticate(ByteBuffer.wrap(out.toByteArray()));
     } catch (TException e) {
       e.printStackTrace();
-      return null;
+      throw new RuntimeException(e);
     }
   }
   
@@ -92,17 +79,19 @@ public class PlugClient {
   }
   
   public static void main(String args[]) throws Exception {
-//    AtomicBoolean stop = new AtomicBoolean(false);
-//    PlugServer server = new PlugServer(stop, 50228);
-//    Thread t = new Thread(server);
-//    t.start();
-//    
-//    PlugServer server2 = new PlugServer(stop, 50229);
-//    Thread t2 = new Thread(server2);
-//    t2.start();
-//    
-//    Thread.sleep(900);
+    // AtomicBoolean stop = new AtomicBoolean(false);
+    // PlugServer server = new PlugServer(stop, 50228);
+    // Thread t = new Thread(server);
+    // t.start();
+    //
+    // PlugServer server2 = new PlugServer(stop, 50229);
+    // Thread t2 = new Thread(server2);
+    // t2.start();
+    //
+    // Thread.sleep(900);
     try {
+      KerberosToken token;
+      
       PlugClient client = new PlugClient("localhost", 50228);
       
       System.out.println("PING? " + client.ping());
@@ -113,37 +102,34 @@ public class PlugClient {
       
       String auth = client.authenticationClass();
       System.out.println(auth);
-      KerberosToken token;
-//      AuthenticationToken token;
-//      if (auth.equals("authenticators.UserPassAuthenticator"))
-//        token = UserPassAuthenticator.getToken("upuser", "pass".getBytes());
-//      else if (auth.equals("authenticators.TicketAuthenticator"))
-//        token = TicketAuthenticator.getToken("ticketuser_pass".getBytes());
-//      else if (auth.equals("authenticators.KerberosAuthenticator"))
+      // AuthenticationToken token;
+      // if (auth.equals("authenticators.UserPassAuthenticator"))
+      // token = UserPassAuthenticator.getToken("upuser", "pass".getBytes());
+      // else if (auth.equals("authenticators.TicketAuthenticator"))
+      // token = TicketAuthenticator.getToken("ticketuser_pass".getBytes());
+      // else if (auth.equals("authenticators.KerberosAuthenticator"))
 //      token = KerberosAuthenticator.getToken("user", "password".toCharArray());
-      token = KerberosAuthenticator.getToken("test", "test".toCharArray());
-//      else {
-//        throw new Exception("Unknown authentication mechanism");
-//      }
-      while (client.authenticate(token).array().length != 0)
-        ;
-      System.out.println("AUTHENTICATE! ");
-      token.update();
+      token = KerberosAuthenticator.getToken("user", "password".toCharArray());
+//      token = KerberosAuthenticator.getToken("test", "test".toCharArray());
+      // else {
+      // throw new Exception("Unknown authentication mechanism");
+      // }
+
+      token.user = "test";
+      System.out.println("AUTHENTICATE! " + client.authenticate(token));
       
       System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
-
+      token.user = "user";
       Thread.sleep(5000);
       System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
-
-      client.close(token);
-//      client = new PlugClient("localhost", 50229);
-//      System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
-
+      
+      // client = new PlugClient("localhost", 50229);
+      // System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
       
     } finally {
-//      stop.set(true);
-//      t.interrupt();
-//      t2.interrupt();
+      // stop.set(true);
+      // t.interrupt();
+      // t2.interrupt();
     }
   }
 }

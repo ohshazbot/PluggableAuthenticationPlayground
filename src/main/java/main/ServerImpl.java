@@ -38,8 +38,8 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
   }
   
   @Override
-  public ByteBuffer authenticate(ByteBuffer tokenBytes) throws PlugException, TException {
-    return ByteBuffer.wrap(auth.authenticate(getToken(tokenBytes)));
+  public boolean authenticate(ByteBuffer tokenBytes) throws PlugException, TException {
+    return auth.authenticate(getToken(tokenBytes));
   }
   
   private AuthenticationToken getToken(ByteBuffer tokenBytes) throws TException {
@@ -91,28 +91,23 @@ public class ServerImpl implements PluggableSecurityTest.Iface {
     auth = new KerberosAuthenticator();
   }
   
-  public void close(ByteBuffer token) throws TException {
-    if (token != null)
-      auth.close(getToken(token));
-  }
-  
   public void close() {
-    server.stop(); 
+    server.stop();
   }
   
   @Override
   public boolean nonauthenticateoperation(ByteBuffer token, String operationRelatedData) throws PlugException, TException {
     AuthenticationToken t = getToken(token);
-    // byte[] auths = auth.authenticate(t);
-    // if (auths!=null) {
-    try {
-      System.out.println("User " + auth.getUser(t) + " is doing " + operationRelatedData);
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      return false;
-    }
-    return true;
+    if (auth.authenticate(t))
+      try {
+        System.out.println("User " + auth.getUser(t) + " is doing " + operationRelatedData);
+        return true;
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        return false;
+      }
+    return false;
     // }
     // return false;
   }
