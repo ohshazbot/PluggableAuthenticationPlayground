@@ -133,6 +133,8 @@ public class PlugClient {
       System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
 
       Thread.sleep(5000);
+      System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
+
       client.close(token);
 //      client = new PlugClient("localhost", 50229);
 //      System.out.println("SOMETHING ELSE! " + client.nonauthenticateoperation(token, "I'm a message being printed server side"));
